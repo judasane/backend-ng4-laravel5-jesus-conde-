@@ -72,7 +72,18 @@ class ImagesController extends Controller
      */
     public function show($id)
     {
-        //
+        $image = Image::find($id);
+
+        if(!$image){
+          return Response::json([
+            'error' => [
+              'message' => "No se pudo encontar la imagen"
+            ]
+          ],404);
+        } else {
+          return Response::json($image,200);
+        }
+
     }
 
     /**
@@ -95,7 +106,38 @@ class ImagesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+      if ((!$request->title) || (!$request->thumbnail) || (!$request->imageLink)) {
+
+          $response = Response::json([
+              'message' => 'Por favor escribe todos los campos obligatorios'
+          ], 422);
+          return $response;
+      }
+
+      $image = Image::find($request->id);
+
+      if(!$image){
+          return Response::json([
+              'error' => [
+                  'message' => "No se ha encontrado la imagen."
+              ]
+          ], 404);
+      }
+
+      $image->thumbnail = trim($request->thumbnail);
+      $image->imageLink = trim($request->imageLink);
+      $image->title = trim($request->title);
+      $image->description = trim($request->description);
+      $image->save();
+
+      $message = 'La imagen ha sido actualizada de modo correcto';
+
+      $response = Response::json([
+          'message' => $message,
+          'data' => $image,
+      ], 201);
+
+      return $response;
     }
 
     /**
